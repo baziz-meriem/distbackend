@@ -8,7 +8,10 @@ route.use('/adm', require('./admAuth'));
 
 route.use('/am', require('./amAuth'));
 
-route.use('/consommateur', require('./customerAuth'));
+const customerAuth = require('./customerAuth');
+route.use('/consommateur', customerAuth);
+// Alias: Swagger and some clients used capital C; Express paths are case-sensitive.
+route.use('/Consommateur', customerAuth);
 
 route.use('/decideur', require('./decideurAuth'));
 

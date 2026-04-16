@@ -2,7 +2,7 @@ const { sendToken, comparePassword, sendEmail, getResetPasswordCode } = require(
 const { getCostumerByEmail, resetCustomerPassword, updateCostumerResetCode, createCustomer } = require('../../services/auth/consommateurService');
 
 const {   validateEmail, validatePassword } = require('../../validators/inputValidation');
-const {  validateCostumer } = require('../../validators/profileValidation');
+const { validateCostumer, registerCostumerHints } = require('../../validators/profileValidation');
 
 const login = async (req, res) => {
     // retrieve the costumer from the request
@@ -36,17 +36,27 @@ const login = async (req, res) => {
 }
 
 const register = async (req, res) => {
-      // call the validateCostumer function to validate the input
       const valideCostumer = validateCostumer(req.body);
-      // if there is an error, return a 400 status code
       if (!valideCostumer) {
-          return res.status(400).json({ status: 'Bad Request', message: "provided costumer is not valid" });
+          return res.status(400).json({
+              status: 'Bad Request',
+              message: 'Invalid registration data',
+              hints: registerCostumerHints(req.body),
+          });
       }
-      // call the service to create the costumer
+      const existing = await getCostumerByEmail(valideCostumer.email);
+      if (existing) {
+          return res.status(409).json({
+              status: 'Conflict',
+              message: 'Email already registered',
+          });
+      }
       const newCostumer = await createCustomer(valideCostumer);
-      // if there is an error, return a 400 status code
       if (!newCostumer) {
-          return res.status(400).json({ status: 'Bad Request', message: "provided costumer is not valid" });
+          return res.status(500).json({
+              status: 'Error',
+              message: 'Could not create account',
+          });
       }
       // return the new costumer with a token
       sendToken(newCostumer,"Consommateur", 201, res);

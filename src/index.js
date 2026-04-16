@@ -1,19 +1,4 @@
-const express = require('express');
-const morgan = require('morgan');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const createError = require('http-errors');
-const fs = require('fs');
 const path = require('path');
-const swaggerUI = require('swagger-ui-express');
-const swaggerDocs = require('./config/swagger');
-const http = require('http');
-const {socketHandler} = require('./api/v1/sockets');
-const ejs=require('ejs');
-const socketIO = require('socket.io');
-const PDFDocument = require('pdfkit');
-
-// Committed .env should win over dashboard defaults; keep host PORT (e.g. Render).
 const hostPort = process.env.PORT;
 require('dotenv').config({
   path: path.join(__dirname, '..', '.env'),
@@ -22,6 +7,20 @@ require('dotenv').config({
 if (hostPort !== undefined) {
   process.env.PORT = hostPort;
 }
+
+const express = require('express');
+const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const createError = require('http-errors');
+const fs = require('fs');
+const swaggerUI = require('swagger-ui-express');
+const swaggerDocs = require('./config/swagger');
+const http = require('http');
+const {socketHandler} = require('./api/v1/sockets');
+const ejs=require('ejs');
+const socketIO = require('socket.io');
+const PDFDocument = require('pdfkit');
 
 const app = express();
 

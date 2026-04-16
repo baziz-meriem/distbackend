@@ -28,12 +28,16 @@ const validateAgent = (agent) => {
 }
 
 const validateCostumer = (Costumer) => {
-    const { nom, prenom, email, password, numTel } = Costumer;
-    const valideNom = validateInput(nom);
-    const validePrenom = validateInput(prenom);
-    const valideEmail = validateEmail(email);
-    const validePassword = validatePassword(password);
-    const valideNumTel = validatePhoneNumber(numTel);
+    if (!Costumer || typeof Costumer !== 'object') {
+        return null;
+    }
+    const nom = Costumer.nom != null ? String(Costumer.nom).trim() : '';
+    const prenom = Costumer.prenom != null ? String(Costumer.prenom).trim() : '';
+    const valideNom = nom ? validateInput(nom) : null;
+    const validePrenom = prenom ? validateInput(prenom) : null;
+    const valideEmail = validateEmail(Costumer.email);
+    const validePassword = validatePassword(Costumer.password);
+    const valideNumTel = validatePhoneNumber(Costumer.numTel);
     if (!valideNom || !validePrenom || !valideEmail || !validePassword || !valideNumTel) {
         return null;
     }
@@ -44,7 +48,33 @@ const validateCostumer = (Costumer) => {
         password: validePassword,
         numTel: valideNumTel
     };
-}
+};
+
+/** When validateCostumer fails, explains what to fix (for API responses). */
+const registerCostumerHints = (Costumer) => {
+    if (!Costumer || typeof Costumer !== 'object') {
+        return ['Send JSON with nom, prenom, email, password, numTel'];
+    }
+    const hints = [];
+    const nom = Costumer.nom != null ? String(Costumer.nom).trim() : '';
+    const prenom = Costumer.prenom != null ? String(Costumer.prenom).trim() : '';
+    if (!nom) {
+        hints.push('nom is required');
+    }
+    if (!prenom) {
+        hints.push('prenom is required');
+    }
+    if (!validateEmail(Costumer.email)) {
+        hints.push('email must be a valid address');
+    }
+    if (!validatePassword(Costumer.password)) {
+        hints.push('password must be at least 6 characters');
+    }
+    if (!validatePhoneNumber(Costumer.numTel)) {
+        hints.push('numTel: use 10 digits (e.g. 0612345678), or international +33 6 12 34 56 78');
+    }
+    return hints;
+};
 
 
 const validateClient = (Client)=> {
@@ -215,6 +245,7 @@ const validateSupplement = (supplement) => {
 module.exports = {
     validateAgent,
     validateCostumer,
+    registerCostumerHints,
     validateClient,
     validateSADM,
     validateADM,

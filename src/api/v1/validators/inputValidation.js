@@ -56,26 +56,47 @@ const validateInput = (input) => {
     return input;
 }
 
+/**
+ * Normalize to 10 French mobile digits (0XXXXXXXXX). Accepts spaces, +33, 0033, 9-digit mobiles.
+ * @param {string|number} num
+ * @returns {string|null}
+ */
+const normalizePhoneNumber = (num) => {
+    if (num === undefined || num === null) {
+        return null;
+    }
+    let s = String(num).trim();
+    if (!s) {
+        return null;
+    }
+    s = s.replace(/[\s().\-]/g, '');
+    if (s.startsWith('00') && s.length > 2) {
+        s = s.slice(2);
+    }
+    if (s.startsWith('+')) {
+        s = s.slice(1);
+    }
+    let digits = s.replace(/\D/g, '');
+    if (digits.startsWith('33') && digits.length >= 11) {
+        digits = `0${digits.slice(2)}`;
+    }
+    if (digits.length === 9 && /^[67]/.test(digits)) {
+        digits = `0${digits}`;
+    }
+    if (digits.length !== 10 || !/^[0-9]{10}$/.test(digits)) {
+        return null;
+    }
+    return digits;
+};
+
 const validatePhoneNumber = (num) => {
     /**
-     * @description validate the phone number and return it or null if it is not valid
-     * @param {string} num
+     * @description validate the phone number and return normalized 10 digits or null
+     * @param {string|number} num
      * @returns {string|null}
      */
-    if (typeof num !== 'string') {
-        return null;
-    }
-
-    if (num.length !== 10) {
-
-        return null;
-    }
-    const numRegex = /^[0-9]+$/;
-    if (!numRegex.test(num)) {
-        return null;
-    }
-    return num;
-}
+    return normalizePhoneNumber(num);
+};
 
 const validateDate = (date) => {
     /**
@@ -96,5 +117,6 @@ module.exports = {
     validatePassword,
     validateDate,
     validateInput,
-    validatePhoneNumber
+    validatePhoneNumber,
+    normalizePhoneNumber,
 }
