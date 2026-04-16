@@ -25,9 +25,11 @@ if (hostPort !== undefined) {
 
 const app = express();
 
+const logDir = path.join(__dirname, 'logger');
+fs.mkdirSync(logDir, { recursive: true });
 
 // Middlewares
-app.use(morgan('combined',{stream:fs.createWriteStream(path.join(__dirname, 'logger/access.log'), { flags: 'a' })}));
+app.use(morgan('combined',{stream:fs.createWriteStream(path.join(logDir, 'access.log'), { flags: 'a' })}));
 
 // Middleware function to check if the route contains 'webhooks' it neeeds raw data
 const webhookMiddleware = (req, res, next) => {

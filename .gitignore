@@ -1,4 +1,4 @@
 node_modules
-logger
+src/logger/*.log
 .nyc_output
 
