@@ -6,13 +6,17 @@
   "scripts": {
     "start": "nodemon src/index.js",
     "dev": "nodemon src/index.js",
-    "test": "nyc --include \"**/*Spec.js\" jasmine "
+    "test": "nyc --include \"**/*Spec.js\" jasmine ",
+    "postinstall": "prisma generate",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^4.10.1",
+    "@prisma/client": "4.16.2",
     "@socket.io/admin-ui": "^0.5.1",
     "axios": "^1.3.5",
     "bcrypt": "^5.1.0",
@@ -35,7 +39,7 @@
     "nodemailer": "^6.9.1",
     "paypal-rest-sdk": "^1.8.1",
     "pdfkit": "^0.13.0",
-    "prisma": "^4.11.0",
+    "prisma": "4.16.2",
     "socket.io": "^4.6.1",
     "stripe": "^12.1.1",
     "swagger-jsdoc": "^6.2.8",
