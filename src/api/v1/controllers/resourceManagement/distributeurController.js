@@ -1,0 +1,164 @@
+const {
+    getDistributeurById,
+    getByClient,
+    getAllDistributeurs,
+    createDistributeur,
+    deleteDistributeur,
+    updateDistributeur,
+    getByAM
+} = require("../../services/resourceManagement/distributeurService");
+const { getPanneByDistributeur } = require("../../services/resourceManagement/panneService");
+
+const { validateId } = require('../../validators/inputValidation');
+const { validateDistributeur } = require('../../validators/profileValidation');
+
+const getAllHandler = async (req, res) => {
+    const distributeurs = await getAllDistributeurs();
+    return res.status(200).json({ status: "success", data: distributeurs });
+};
+
+const getByClientHandler = async (req, res) => {
+    const { idClient } = req.params;
+    const validatedID= validateId(idClient);
+    if(!validatedID)
+    {
+        return res.status(400).json({ status: 'Bad Request', message: "provided id is not valid" });
+    }
+    const distributeurs = await getByClient(validatedID);
+    if (!distributeurs) {
+        return res.status(400).json({ status: 'Bad Request', message: 'client id is invalid' });
+    }
+    return res.status(200).json({ status: "success", data: distributeurs });
+}
+
+const getByAMHandler = async (req, res) => {
+    const { id } = req.params;
+
+    const valideId = validateId(id);
+
+    if (!valideId) {
+        return res.status(400).json({ status: 'Bad Request', message: "provided id is not valid" });
+    }
+    const distributeurs = await getByAM(valideId);
+    if (!distributeurs) {
+        return res.status(404).json({ status: 'Not Found', message: 'Distributeur not found' });
+    }
+    return res.status(200).json({ status: "success", data: distributeurs });
+};
+
+const getOneHandler = async (req, res) => {
+    const { id } = req.params;
+
+    const valideId = validateId(id);
+
+    if (!valideId) {
+        return res.status(400).json({ status: 'Bad Request', message: "provided id is not valid" });
+    }
+
+    const distributeur = await getDistributeurById(id);
+
+    if (!distributeur) {
+        return res.status(404).json({ status: 'Not Found', message: 'Distributeur not found' });
+    }
+    return res.status(200).json({ status: 'success', data: distributeur });
+}
+
+const getPannesHandler = async (req, res) => {
+    // get the id from the request parameters
+    const { id } = req.params;
+    // validate the id
+    const valideId = validateId(id);
+    // if the id is not valid, return a 400 status code
+    if (!valideId) {
+        return res.status(400).json({
+            status: 'Bad Request',
+            message: 'Invalid id'
+        });
+    }
+    // call the service to get the panne
+    const pannes = await getPanneByDistributeur(valideId);
+    // if the panne is not found, return a 400 status code
+    if (!pannes) {
+        return res.status(400).json({
+            status: 'Bad Request',
+            message: 'Error while getting pannes, id is not valid'
+        });
+    }
+    // return the panne
+    return res.status(200).json({
+        status: 'OK',
+        message: 'Pannes retrieved successfully',
+        data: pannes
+    });
+}
+
+const postHandler = async (req, res) => {
+    const { etat, type, position, codeDeverouillage, idClient=null, idRegion, idAM=null } = req.body;
+    const valideDistributeur = validateDistributeur({ etat, type, position, codeDeverouillage, idClient, idRegion, idAM });
+
+    if (!valideDistributeur) {
+        console.log("oups; validation error");
+        return res.status(400).json({ status: 'Bad Request', message: "provided Distributeur is not valid" });
+    }
+
+
+
+    const newDistributeur = await createDistributeur(valideDistributeur);
+    if( typeof newDistributeur === "string" )
+    {
+        return res.status(400).json({ status: 'Bad Request', message: newDistributeur });
+    }
+
+    return res.status(201).json({ status: 'success', data: newDistributeur });
+}
+
+const deleteHandler = async (req, res) => {
+    const { id } = req.params;
+    const valideId = validateId(id);
+
+    if (!valideId) {
+        return res.status(400).json({ status: 'Bad Request', message: "provided id is not valid" });
+    }
+    const deletedDistributeur = await deleteDistributeur(valideId);
+    if( typeof deletedDistributeur === "string" )
+    {
+        return res.status(400).json({ status: 'Bad Request', message: deletedDistributeur });
+    }
+
+    return res.status(200).json({ status: 'success', data: deletedDistributeur });
+}
+
+const putHandler = async (req, res) => {
+    const { id } = req.params;
+    const valideId = validateId(id);
+
+    if (!valideId) {
+        return res.status(400).json({ status: 'Bad Request', message: "provided id is not valid" });
+    }
+    // retrieve the distributeur from the request
+    const { etat, type, position, codeDeverouillage, idClient, idRegion, idAM } = req.body;
+    const valideDistributeur = validateDistributeur({ etat, type, position, codeDeverouillage, idClient, idRegion, idAM });
+    if (!valideDistributeur) {
+        return res.status(400).json({ status: 'Bad Request', message: "provided distributeur is not valid" });
+    }
+    const updatedDistributeur = await updateDistributeur(valideId, valideDistributeur);
+    if( typeof updatedDistributeur === "string" )
+    {
+        return res.status(400).json({ status: 'Bad Request', message: updatedDistributeur });
+    }
+    
+    return res.status(200).json({ status: 'success', data: updatedDistributeur });
+}
+
+
+
+module.exports = {
+    getAllHandler,
+    getByAMHandler,
+    getByClientHandler,
+    getOneHandler,
+    getPannesHandler,
+    postHandler,
+    deleteHandler,
+    putHandler,
+};
