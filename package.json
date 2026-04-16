@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "nodemon src/index.js",
+    "start:prod": "node scripts/start-prod.js",
     "dev": "nodemon src/index.js",
     "test": "nyc --include \"**/*Spec.js\" jasmine ",
     "postinstall": "prisma generate",

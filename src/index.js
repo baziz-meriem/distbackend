@@ -13,9 +13,15 @@ const ejs=require('ejs');
 const socketIO = require('socket.io');
 const PDFDocument = require('pdfkit');
 
-
-require('dotenv').config();
-
+// Committed .env should win over dashboard defaults; keep host PORT (e.g. Render).
+const hostPort = process.env.PORT;
+require('dotenv').config({
+  path: path.join(__dirname, '..', '.env'),
+  override: true,
+});
+if (hostPort !== undefined) {
+  process.env.PORT = hostPort;
+}
 
 const app = express();
 
